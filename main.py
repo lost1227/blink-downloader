@@ -6,7 +6,8 @@ from pathlib import Path
 
 import signal
 import datetime
-import time
+
+import threading
 
 blink_period = int(os.environ.get("BLINK_PERIOD"))
 blink_location = Path(os.environ.get("BLINK_LOCATION"))
@@ -39,10 +40,14 @@ since = datetime.datetime.now()
 delta = datetime.timedelta(seconds=blink_period)
 since -= delta
 
+interrupt_event = threading.Event()
+
 interrupted = False
-def handle():
+def handle(signum, stackframe):
     global interrupted
+    global interrupt_event
     interrupted = True
+    interrupt_event.set()
 
 signal.signal(signal.SIGINT, handle)
 signal.signal(signal.SIGTERM, handle)
@@ -55,5 +60,8 @@ while not interrupted:
     print("Downloading videos since ", since)
     blink.download_videos(blink_location / "downloads", since=str(since))
     since += delta
-    time.sleep(delta.total_seconds())
+    print("Waiting for {} seconds".format(delta.total_seconds()))
+    if interrupt_event.wait(delta.total_seconds()):
+        print("Interrupted!")
+        break
 
