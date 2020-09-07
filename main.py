@@ -47,6 +47,10 @@ def handle():
 signal.signal(signal.SIGINT, handle)
 signal.signal(signal.SIGTERM, handle)
 
+downloaddir = blink_location / "downloads"
+if not downloaddir.is_dir():
+    downloaddir.mkdir()
+
 while not interrupted:
     print("Downloading videos since ", since)
     blink.download_videos(blink_location / "downloads", since=str(since))
