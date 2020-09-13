@@ -2,7 +2,7 @@ FROM python
 
 WORKDIR /usr/src/blink_downloader
 
-COPY requirements.txt main.py ./
+COPY requirements.txt *.py ./
 
 RUN pip install -r requirements.txt
 
