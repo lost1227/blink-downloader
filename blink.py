@@ -11,6 +11,14 @@ class CustBlink:
         if not blink_location.is_dir():
             blink_location.mkdir()
 
+    def login_only(self):
+        self.blink = Blink()
+        creds = self.blink_location / "creds.json"
+        started = self.blink.start()
+        if started:
+            self.blink.save(creds)
+        return started
+
     def reauth(self):
         self.blink = Blink()
 
@@ -20,12 +28,8 @@ class CustBlink:
         print("Logging in to Blink...")
         if creds.is_file():
             auth = Auth(json_load(creds))
+            auth.no_prompt = True
             self.blink.auth = auth
             started = self.blink.start()
-
-        if not started:
-            started = self.blink.start()
-            if started:
-                self.blink.save(creds)
 
         return started

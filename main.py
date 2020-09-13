@@ -7,10 +7,26 @@ import datetime
 
 import threading
 
+import argparse
+
 blink_period = int(os.environ.get("BLINK_PERIOD"))
 blink_location = Path(os.environ.get("BLINK_LOCATION"))
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--login-only', action='store_true')
+args = parser.parse_args()
+
+
 blink = CustBlink(blink_location, blink_period)
+
+if args.login_only:
+    print("Authenticating...")
+    authed = blink.login_only()
+    if not authed:
+        print("Authentication failed")
+    else:
+        print("Authentication succeeded")
+    exit()
 
 since = datetime.datetime.now()
 delta = datetime.timedelta(seconds=blink_period)
